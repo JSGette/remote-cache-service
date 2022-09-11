@@ -9,7 +9,7 @@ mainly related to Remote Cache.
 * OpenJDK 11
 * [bazel 5.2.0](https://docs.bazel.build/versions/main/install.html)
 
-** It isn't guaranteed that project is buildable/executable in Windows Environment **
+**It isn't guaranteed that project is buildable/executable in Windows Environment**
 
 ## How to build/execute
 Bazel provides us with 2 very useful commands: build and run. The first builds arbitrary target
