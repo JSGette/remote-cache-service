@@ -76,8 +76,7 @@ bazel query @maven//:all --output=build
 
 - Bazel has native rules to build and test Java Code. Although a lot of examples (including official, 
 e.g. [here](https://github.com/grpc/grpc-java/tree/master/examples/src/test/java/io/grpc/examples))
-are still using JUnit 4 it is also possible to write unit tests using [Junit 5]
-(https://github.com/grpc/grpc-java/tree/master/examples/src/test/java/io/grpc/examples).
+are still using JUnit 4 it is also possible to write unit tests using [Junit 5](https://github.com/grpc/grpc-java/tree/master/examples/src/test/java/io/grpc/examples).
 There's a custom rule and some marcos that simplify configuration and work with transitive dependencies.
 I decided to download it and place directly in this project for simplicity. Especially because
 it's marked as a sample.
