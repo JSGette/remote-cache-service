@@ -2,7 +2,7 @@ load("@rules_java//java:defs.bzl", "java_binary")
 load("@io_grpc_grpc_java//:java_grpc_library.bzl", "java_grpc_library")
 
 java_binary(
-    name = "RemoteCache",
+    name = "remote_cache_server_bin",
     srcs = glob(["src/main/java/com/gette/*.java"]),
     main_class = "com.gette.RemoteCache",
     runtime_deps = [
@@ -17,6 +17,14 @@ java_binary(
         #This allows us to get list of implemented GRPC Services and Methods
         "@io_grpc_grpc_java//services:reflection",
     ],
+)
+
+load("//bazel/junit5:junit5.bzl", "java_junit5_test")
+
+java_junit5_test(
+    name = "remote_cache_server_test",
+    srcs = glob(["src/test/java/com/gette/*.java"]),
+    test_package = "com.gette"
 )
 
 java_proto_library(

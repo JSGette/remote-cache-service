@@ -1,3 +1,7 @@
+#This set of rules has been downloaded from here
+#https://github.com/junit-team/junit5-samples/blob/main/junit5-jupiter-starter-bazel/junit5.bzl
+#Since it's marked as an example I decided to
+#copy it into my project directly
 """External dependencies & java_junit5_test rule"""
 
 load("@bazel_tools//tools/build_defs/repo:jvm.bzl", "jvm_maven_import_external")
