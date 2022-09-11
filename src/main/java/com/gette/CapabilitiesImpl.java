@@ -1,27 +1,40 @@
 package com.gette;
 
 
+import java.util.logging.Logger;
+
 import build.bazel.remote.execution.v2.ActionCacheUpdateCapabilities;
 import build.bazel.remote.execution.v2.CacheCapabilities;
+import build.bazel.remote.execution.v2.CapabilitiesGrpc.CapabilitiesImplBase;
 import build.bazel.remote.execution.v2.DigestFunction;
 import build.bazel.remote.execution.v2.ExecutionCapabilities;
 import build.bazel.remote.execution.v2.GetCapabilitiesRequest;
-import build.bazel.remote.execution.v2.PriorityCapabilities;
 import build.bazel.remote.execution.v2.ServerCapabilities;
 import build.bazel.remote.execution.v2.SymlinkAbsolutePathStrategy;
-import build.bazel.remote.execution.v2.CapabilitiesGrpc.CapabilitiesImplBase;
-import build.bazel.remote.execution.v2.PriorityCapabilities.PriorityRange;
 import io.grpc.stub.StreamObserver;
 
+import build.bazel.semver.SemVer;
+
 public class CapabilitiesImpl extends CapabilitiesImplBase{
+    private static final Logger log = Logger.getLogger(CapabilitiesImpl.class.getName());
 
     @Override
     public void getCapabilities(GetCapabilitiesRequest request, 
     StreamObserver<ServerCapabilities> responseObserver) {
-        System.out.println("We are here");
+        log.info("GetCapabilities received...");
         ServerCapabilities serverCapabilities = ServerCapabilities.newBuilder()
         .setCacheCapabilities(getCacheCapabilities())
         .setExecutionCapabilities(getExecutionCapabilities())
+        .setLowApiVersion(SemVer.newBuilder()
+            .setMajor(0)
+            .setMinor(0)
+            .setPatch(0)
+            .build())
+        .setHighApiVersion(SemVer.newBuilder()
+            .setMajor(2)
+            .setMinor(0)
+            .setPatch(0)
+            .build())
         .build();
         responseObserver.onNext(serverCapabilities);
         responseObserver.onCompleted();
@@ -43,7 +56,7 @@ public class CapabilitiesImpl extends CapabilitiesImplBase{
         .build();
     }
 
-    //Disabling AC Update to keep it as simple as possible
+    //Excplitily disabling AC Update to keep it as simple as possible
     protected ActionCacheUpdateCapabilities getActionCacheUpdateCapabilities() {
         return ActionCacheUpdateCapabilities.newBuilder()
             .setUpdateEnabled(false)

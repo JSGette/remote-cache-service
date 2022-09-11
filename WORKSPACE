@@ -12,6 +12,10 @@ git_repository(
 # to ensure compatibility.
 http_archive(
     name = "googleapis",
+    #There's no need to explicitly set path to external/BUILD.googleapis
+    #as bazel automatically assumes all BUILD files for external dependencies
+    #described in WORKSPACE file are placed in external/ directory in
+    #the root folder of the project
     build_file = "BUILD.googleapis",
     sha256 = "7b6ea252f0b8fb5cd722f45feb83e115b689909bbb6a393a873b6cbad4ceae1d",
     strip_prefix = "googleapis-143084a2624b6591ee1f9d23e7f5241856642f4d",
@@ -21,9 +25,9 @@ http_archive(
 #GRPC Rules for Java
 http_archive(
     name = "io_grpc_grpc_java",
-    sha256 = "17720e657f2d3e1fa5ba97cc0a73eaa275f9f946d5b6c65d23757c67b42e006a",
-    strip_prefix = "grpc-java-88a035e2c2599bf8e7599fc1dde394a23a07c6c1",
-    urls = ["https://github.com/grpc/grpc-java/archive/88a035e2c2599bf8e7599fc1dde394a23a07c6c1.zip"]
+    sha256 = "89d16804d87a0d63878d71610b8c2245138f43de6a01ab5f7bad67d3a31e9f68",
+    strip_prefix = "grpc-java-1.49.0",
+    urls = ["https://github.com/grpc/grpc-java/archive/refs/tags/v1.49.0.zip"]
 )
 
 #Java GRPC Dependencies
@@ -50,14 +54,30 @@ maven_install(
     artifacts = [
         "com.google.api.grpc:grpc-google-cloud-pubsub-v1:0.1.24",
         "com.google.api.grpc:proto-google-cloud-pubsub-v1:0.1.24",
+        "commons-codec:commons-codec:1.15",
     ] + IO_GRPC_GRPC_JAVA_ARTIFACTS + PROTOBUF_MAVEN_ARTIFACTS,
     generate_compat_repositories = True,
     override_targets = IO_GRPC_GRPC_JAVA_OVERRIDE_TARGETS,
     repositories = [
-        "https://repo.maven.apache.org/maven2/",
+        "https://repo.maven.apache.org/maven2/"
     ],
 )
 
 load("@maven//:compat.bzl", "compat_repositories")
 
 compat_repositories()
+
+#Dependencies required by junit5
+load("//bazel/junit5:junit5.bzl", "junit_jupiter_java_repositories", "junit_platform_java_repositories")
+
+JUNIT_JUPITER_VERSION = "5.9.0"
+
+JUNIT_PLATFORM_VERSION = "1.9.0"
+
+junit_jupiter_java_repositories(
+    version = JUNIT_JUPITER_VERSION,
+)
+
+junit_platform_java_repositories(
+    version = JUNIT_PLATFORM_VERSION,
+)
