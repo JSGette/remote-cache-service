@@ -1,6 +1,8 @@
 package com.gette;
 
 
+import java.util.logging.Logger;
+
 import build.bazel.remote.execution.v2.ActionCacheUpdateCapabilities;
 import build.bazel.remote.execution.v2.CacheCapabilities;
 import build.bazel.remote.execution.v2.DigestFunction;
