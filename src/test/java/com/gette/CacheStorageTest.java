@@ -56,15 +56,15 @@ public class CacheStorageTest {
     }
 
     @Test
-    public void findDigest_test() throws IOException{
-        Assertions.assertTrue(cacheStorage.findDigest(testDigests.get(0)));
+    public void hasDigest_test() throws IOException{
+        Assertions.assertTrue(cacheStorage.hasDigest(testDigests.get(0)));
 
         Digest nonExistingDigest = Digest.newBuilder()
         .setHash("2589f1fa898bfaf10b8b631ad3bf29d8d9c7ef113237718f72e88fad4a5bc2d8")
         .setSizeBytes(23)
         .build();
         
-       Assertions.assertFalse(cacheStorage.findDigest(nonExistingDigest));
+       Assertions.assertFalse(cacheStorage.hasDigest(nonExistingDigest));
     }
     
 }

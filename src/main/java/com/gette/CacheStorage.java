@@ -2,12 +2,17 @@ package com.gette;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.commons.codec.digest.DigestUtils;
 
@@ -15,6 +20,7 @@ import build.bazel.remote.execution.v2.Digest;
 
 public final class CacheStorage {
     static final Logger log = Logger.getLogger(CacheStorage.class.getName());
+    private final Map<Digest, Path> cachedDigests;
     private ArrayList<Path> filesInCache = new ArrayList<>();
     private ArrayList<Digest> digestsInCache = new ArrayList<>();
     private Path cacheStoragePath;
@@ -23,10 +29,12 @@ public final class CacheStorage {
         log.info("Initializing Cache Storage...");
         this.cacheStoragePath = Paths.get(cacheStoragePath);
         log.info("Storage Path: " + cacheStoragePath);
-        walkThroughFileTree();
+        log.info("Looking for already exising blobs...");
+        cachedDigests = walkFileTree();
+        log.info("Found " + cachedDigests.size() + " blobs...");
     }
 
-    public boolean findDigest(Digest digest) throws IOException {
+    public boolean hasDigest(Digest digest) throws IOException {
         log.info("Looking for Digest with HASH: " + digest.getHash() + " and SIZE: " + digest.getSizeBytes());
         if (digestsInCache.contains(digest)) {
             log.info("Found Digest...");
@@ -35,22 +43,22 @@ public final class CacheStorage {
         log.info("Digest Not Found...");
         return false;
     }
-    
-    private void walkThroughFileTree() throws IOException {
-        log.info("Walking through the cache directory...");
-        filesInCache.addAll(Files.find(cacheStoragePath, Integer.MAX_VALUE, (filePath, fileAttr) -> fileAttr.isRegularFile()).collect(Collectors.toList()));
-        log.info("Adding existing files to index...");
-        log.info("Files in cache: " + filesInCache.size());
-        if (filesInCache.size() > 0) {
-            log.info("Calculating digests...");
-            for (Path filePath: filesInCache) {
-                digestsInCache.add(Digest.newBuilder()
-                .setHash(DigestUtils.sha256Hex(new FileInputStream(filePath.toString())))
-                .setSizeBytes(filePath.toFile().length())
-                .build());
-            }
-        }
-        log.info("Done calculating digests...");
-        log.info("Digests in cache: " + digestsInCache.size());
+
+    private Map<Digest, Path> walkFileTree() throws IOException {
+        Stream<Path> stream = Files.find(cacheStoragePath, Integer.MAX_VALUE, (filePath, fileAttr) -> fileAttr.isRegularFile());
+        return stream.collect(Collectors.toMap(
+            file -> {
+                try (InputStream is = Files.newInputStream(file)) {
+                    return Digest.newBuilder()
+                    .setHash(DigestUtils.sha256Hex(is))
+                    .setSizeBytes(Files.size(file))
+                    .build();
+                } catch (IOException exception) {
+                    throw new UncheckedIOException(exception);
+                }
+            },
+            file -> file,
+            (f1, f2) -> f2,
+            ConcurrentHashMap::new));
     }
 }
