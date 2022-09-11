@@ -11,6 +11,7 @@ java_binary(
     deps = [
         ":remote_execution_grpc_java",
         ":remote_execution_proto_java",
+        ":remote_execution_semver_proto_java",
         "@io_grpc_grpc_java//api",
         "@io_grpc_grpc_java//protobuf",
         "@io_grpc_grpc_java//stub",
@@ -30,6 +31,7 @@ java_junit5_test(
         ":remote_cache_server_bin",
         ":remote_execution_grpc_java",
         ":remote_execution_proto_java",
+        ":remote_execution_semver_proto_java",
         "@io_grpc_grpc_java//core:inprocess",
         "@io_grpc_grpc_java//testing",
         "@maven//:commons_codec_commons_codec",
@@ -45,4 +47,9 @@ java_grpc_library(
     name = "remote_execution_grpc_java",
     srcs = ["@google_remote_apis//build/bazel/remote/execution/v2:remote_execution_proto"],
     deps = [":remote_execution_proto_java"],
+)
+
+java_proto_library(
+    name = "remote_execution_semver_proto_java",
+    deps = ["@google_remote_apis//build/bazel/semver:semver_proto"]
 )

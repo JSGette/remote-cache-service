@@ -13,8 +13,10 @@ import build.bazel.remote.execution.v2.ServerCapabilities;
 import build.bazel.remote.execution.v2.SymlinkAbsolutePathStrategy;
 import io.grpc.stub.StreamObserver;
 
+import build.bazel.semver.SemVer;
+
 public class CapabilitiesImpl extends CapabilitiesImplBase{
-    static final Logger log = Logger.getLogger(CapabilitiesImpl.class.getName());
+    private static final Logger log = Logger.getLogger(CapabilitiesImpl.class.getName());
 
     @Override
     public void getCapabilities(GetCapabilitiesRequest request, 
@@ -23,6 +25,16 @@ public class CapabilitiesImpl extends CapabilitiesImplBase{
         ServerCapabilities serverCapabilities = ServerCapabilities.newBuilder()
         .setCacheCapabilities(getCacheCapabilities())
         .setExecutionCapabilities(getExecutionCapabilities())
+        .setLowApiVersion(SemVer.newBuilder()
+            .setMajor(0)
+            .setMinor(0)
+            .setPatch(0)
+            .build())
+        .setHighApiVersion(SemVer.newBuilder()
+            .setMajor(2)
+            .setMinor(0)
+            .setPatch(0)
+            .build())
         .build();
         responseObserver.onNext(serverCapabilities);
         responseObserver.onCompleted();
