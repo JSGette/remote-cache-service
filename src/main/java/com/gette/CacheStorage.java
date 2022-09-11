@@ -47,20 +47,21 @@ public final class CacheStorage {
     }
 
     private Map<Digest, Path> walkFileTree() throws IOException {
-        Stream<Path> stream = Files.find(cacheStoragePath, Integer.MAX_VALUE, (filePath, fileAttr) -> fileAttr.isRegularFile());
-        return stream.collect(Collectors.toMap(
-            file -> {
-                try (InputStream is = Files.newInputStream(file)) {
-                    return Digest.newBuilder()
-                    .setHash(DigestUtils.sha256Hex(is))
-                    .setSizeBytes(Files.size(file))
-                    .build();
-                } catch (IOException exception) {
-                    throw new UncheckedIOException(exception);
-                }
-            },
-            file -> file,
-            (f1, f2) -> f2,
-            ConcurrentHashMap::new));
+        try (Stream<Path> stream = Files.find(cacheStoragePath, Integer.MAX_VALUE, (filePath, fileAttr) -> fileAttr.isRegularFile())) {
+            return stream.collect(Collectors.toMap(
+                file -> {
+                    try (InputStream is = Files.newInputStream(file)) {
+                        return Digest.newBuilder()
+                        .setHash(DigestUtils.sha256Hex(is))
+                        .setSizeBytes(Files.size(file))
+                        .build();
+                    } catch (IOException exception) {
+                        throw new UncheckedIOException(exception);
+                    }
+                },
+                file -> file,
+                (f1, f2) -> f2,
+                ConcurrentHashMap::new));
+        }
     }
 }
