@@ -56,6 +56,11 @@ public class CacheStorageTest {
     }
 
     @Test
+    public void walkFileTree_test() throws IOException {
+        Assertions.assertEquals(tmpFiles.size(), cacheStorage.getCachedDigestsCount());
+    }
+
+    @Test
     public void hasDigest_test() throws IOException{
         Assertions.assertTrue(cacheStorage.hasDigest(testDigests.get(0)));
 
@@ -66,5 +71,4 @@ public class CacheStorageTest {
         
        Assertions.assertFalse(cacheStorage.hasDigest(nonExistingDigest));
     }
-    
 }

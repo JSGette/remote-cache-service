@@ -21,8 +21,6 @@ import build.bazel.remote.execution.v2.Digest;
 public final class CacheStorage {
     static final Logger log = Logger.getLogger(CacheStorage.class.getName());
     private final Map<Digest, Path> cachedDigests;
-    private ArrayList<Path> filesInCache = new ArrayList<>();
-    private ArrayList<Digest> digestsInCache = new ArrayList<>();
     private Path cacheStoragePath;
 
     public CacheStorage(String cacheStoragePath) throws IOException {
@@ -34,9 +32,13 @@ public final class CacheStorage {
         log.info("Found " + cachedDigests.size() + " blobs...");
     }
 
+    public int getCachedDigestsCount() {
+        return cachedDigests.size();
+    }
+
     public boolean hasDigest(Digest digest) throws IOException {
         log.info("Looking for Digest with HASH: " + digest.getHash() + " and SIZE: " + digest.getSizeBytes());
-        if (digestsInCache.contains(digest)) {
+        if (cachedDigests.keySet().contains(digest)) {
             log.info("Found Digest...");
             return true;
         }
