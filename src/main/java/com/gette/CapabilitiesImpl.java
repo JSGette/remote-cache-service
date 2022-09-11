@@ -56,10 +56,11 @@ public class CapabilitiesImpl extends CapabilitiesImplBase{
         .build();
     }
 
-    //Excplitily disabling AC Update to keep it as simple as possible
+    //This parameter should be enabled otherwise
+    //getting `the current account is not authorized to write local results to the remote cache.`
     protected ActionCacheUpdateCapabilities getActionCacheUpdateCapabilities() {
         return ActionCacheUpdateCapabilities.newBuilder()
-            .setUpdateEnabled(false)
+            .setUpdateEnabled(true)
             .build();
     }
 }
