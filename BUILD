@@ -24,7 +24,14 @@ load("//bazel/junit5:junit5.bzl", "java_junit5_test")
 java_junit5_test(
     name = "remote_cache_server_test",
     srcs = glob(["src/test/java/com/gette/*.java"]),
-    test_package = "com.gette"
+    test_package = "com.gette",
+    deps = [
+        ":remote_cache_server_bin",
+        ":remote_execution_grpc_java",
+        ":remote_execution_proto_java",
+        "@io_grpc_grpc_java//core:inprocess",
+        "@io_grpc_grpc_java//testing",
+    ],
 )
 
 java_proto_library(

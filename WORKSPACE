@@ -21,9 +21,9 @@ http_archive(
 #GRPC Rules for Java
 http_archive(
     name = "io_grpc_grpc_java",
-    sha256 = "17720e657f2d3e1fa5ba97cc0a73eaa275f9f946d5b6c65d23757c67b42e006a",
-    strip_prefix = "grpc-java-88a035e2c2599bf8e7599fc1dde394a23a07c6c1",
-    urls = ["https://github.com/grpc/grpc-java/archive/88a035e2c2599bf8e7599fc1dde394a23a07c6c1.zip"]
+    sha256 = "89d16804d87a0d63878d71610b8c2245138f43de6a01ab5f7bad67d3a31e9f68",
+    strip_prefix = "grpc-java-1.49.0",
+    urls = ["https://github.com/grpc/grpc-java/archive/refs/tags/v1.49.0.zip"]
 )
 
 #Java GRPC Dependencies
