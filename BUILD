@@ -14,6 +14,7 @@ java_binary(
         "@io_grpc_grpc_java//api",
         "@io_grpc_grpc_java//protobuf",
         "@io_grpc_grpc_java//stub",
+        "@maven//:commons_codec_commons_codec",
         #This allows us to get list of implemented GRPC Services and Methods
         "@io_grpc_grpc_java//services:reflection",
     ],
@@ -31,6 +32,7 @@ java_junit5_test(
         ":remote_execution_proto_java",
         "@io_grpc_grpc_java//core:inprocess",
         "@io_grpc_grpc_java//testing",
+        "@maven//:commons_codec_commons_codec",
     ],
 )
 

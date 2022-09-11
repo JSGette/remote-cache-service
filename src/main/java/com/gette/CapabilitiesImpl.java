@@ -14,11 +14,12 @@ import build.bazel.remote.execution.v2.PriorityCapabilities.PriorityRange;
 import io.grpc.stub.StreamObserver;
 
 public class CapabilitiesImpl extends CapabilitiesImplBase{
+    static final Logger log = Logger.getLogger(CapabilitiesImpl.class.getName());
 
     @Override
     public void getCapabilities(GetCapabilitiesRequest request, 
     StreamObserver<ServerCapabilities> responseObserver) {
-        System.out.println("We are here");
+        log.info("GetCapabilities received...");
         ServerCapabilities serverCapabilities = ServerCapabilities.newBuilder()
         .setCacheCapabilities(getCacheCapabilities())
         .setExecutionCapabilities(getExecutionCapabilities())
@@ -43,7 +44,7 @@ public class CapabilitiesImpl extends CapabilitiesImplBase{
         .build();
     }
 
-    //Disabling AC Update to keep it as simple as possible
+    //Excplitily disabling AC Update to keep it as simple as possible
     protected ActionCacheUpdateCapabilities getActionCacheUpdateCapabilities() {
         return ActionCacheUpdateCapabilities.newBuilder()
             .setUpdateEnabled(false)
