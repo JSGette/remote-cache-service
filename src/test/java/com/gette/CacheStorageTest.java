@@ -9,6 +9,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -56,7 +57,23 @@ public class CacheStorageTest {
     }
 
     @Test
-    public void walkFileTree_test() throws IOException {
+    public void findDigests_test() {
+        List<Digest> findDigests = testDigests;
+        findDigests.add( Digest.newBuilder()
+        .setHash("231213947120937180292312")
+        .setSizeBytes(1)
+        .build());
+
+        findDigests.add( Digest.newBuilder()
+        .setHash("223140821094812032837231231")
+        .setSizeBytes(2)
+        .build());
+
+        Assertions.assertEquals(testDigests.size(), cacheStorage.findDigests(findDigests));
+    }
+
+    @Test
+    public void getCachedDigestsCount_test() throws IOException {
         Assertions.assertEquals(tmpFiles.size(), cacheStorage.getCachedDigestsCount());
     }
 

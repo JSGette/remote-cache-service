@@ -8,6 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
@@ -19,7 +20,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 import build.bazel.remote.execution.v2.Digest;
 
 public final class CacheStorage {
-    static final Logger log = Logger.getLogger(CacheStorage.class.getName());
+    private static final Logger log = Logger.getLogger(CacheStorage.class.getName());
     private final Map<Digest, Path> cachedDigests;
     private Path cacheStoragePath;
 
@@ -32,11 +33,18 @@ public final class CacheStorage {
         log.info("Found " + cachedDigests.size() + " blobs...");
     }
 
+    public List<Digest> findDigests(List<Digest> digests) {
+        try (Stream<Digest> stream = digests.stream()) {
+            return stream.filter(digest -> hasDigest(digest))
+            .collect(Collectors.toList());
+        }
+    }
+
     public int getCachedDigestsCount() {
         return cachedDigests.size();
     }
 
-    public boolean hasDigest(Digest digest) throws IOException {
+    public boolean hasDigest(Digest digest){
         log.info("Looking for Digest with HASH: " + digest.getHash() + " and SIZE: " + digest.getSizeBytes());
         if (cachedDigests.keySet().contains(digest)) {
             log.info("Found Digest...");
