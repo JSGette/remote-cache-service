@@ -1,34 +1,25 @@
 package com.gette;
 
-import org.junit.jupiter.api.Test;
-
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.logging.Logger;
 
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.io.TempDir;
-import org.junit.jupiter.api.TestInstance;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.jupiter.api.Assertions;
-
-import com.gette.CacheStorage;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.io.TempDir;
 
 import build.bazel.remote.execution.v2.Digest;
-
-import org.apache.commons.codec.digest.DigestUtils;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class CacheStorageTest {
@@ -59,24 +50,6 @@ public class CacheStorageTest {
             .setHash(DigestUtils.sha256Hex(new FileInputStream(path)))
             .setSizeBytes(Paths.get(path).toFile().length())
             .build());
-            /*
-            Path pathToTmpFile = tempDir.resolve(tmpFile);
-            Files.createFile(pathToTmpFile);
-            byte[] bytes = new byte[8];
-            new Random().nextBytes(bytes);
-            String randomString = new String(bytes);
-            log.info("STRING: " + randomString);
-            PrintWriter writer = new PrintWriter(new FileWriter(pathToTmpFile.toFile()));
-            writer.println(randomString);
-            writer.close();
-            String checksumSha256 = DigestUtils.sha256Hex(new FileInputStream(pathToTmpFile.toString()));
-            Digest digest = Digest.newBuilder()
-            .setHash(checksumSha256)
-            .setSizeBytes(pathToTmpFile.toFile().length())
-            .build();
-            digestsInCache.add(digest);
-            log.info("HASH: " + digest.getHash() + " SIZE: " + digest.getSerializedSize());
-             */
         }
 
         cacheStorage = new CacheStorage(tempDir.toString());

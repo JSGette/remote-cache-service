@@ -5,14 +5,12 @@ import java.util.logging.Logger;
 
 import build.bazel.remote.execution.v2.ActionCacheUpdateCapabilities;
 import build.bazel.remote.execution.v2.CacheCapabilities;
+import build.bazel.remote.execution.v2.CapabilitiesGrpc.CapabilitiesImplBase;
 import build.bazel.remote.execution.v2.DigestFunction;
 import build.bazel.remote.execution.v2.ExecutionCapabilities;
 import build.bazel.remote.execution.v2.GetCapabilitiesRequest;
-import build.bazel.remote.execution.v2.PriorityCapabilities;
 import build.bazel.remote.execution.v2.ServerCapabilities;
 import build.bazel.remote.execution.v2.SymlinkAbsolutePathStrategy;
-import build.bazel.remote.execution.v2.CapabilitiesGrpc.CapabilitiesImplBase;
-import build.bazel.remote.execution.v2.PriorityCapabilities.PriorityRange;
 import io.grpc.stub.StreamObserver;
 
 public class CapabilitiesImpl extends CapabilitiesImplBase{
