@@ -12,6 +12,10 @@ git_repository(
 # to ensure compatibility.
 http_archive(
     name = "googleapis",
+    #There's no need to explicitly set path to external/BUILD.googleapis
+    #as bazel automatically assumes all BUILD files for external dependencies
+    #described in WORKSPACE file are placed in external/ directory in
+    #the root folder of the project
     build_file = "BUILD.googleapis",
     sha256 = "7b6ea252f0b8fb5cd722f45feb83e115b689909bbb6a393a873b6cbad4ceae1d",
     strip_prefix = "googleapis-143084a2624b6591ee1f9d23e7f5241856642f4d",
