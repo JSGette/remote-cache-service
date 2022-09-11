@@ -12,6 +12,12 @@ java_binary(
         ":remote_execution_grpc_java",
         ":remote_execution_proto_java",
         ":remote_execution_semver_proto_java",
+        #bazel offers to use @com_google_protobuf//java/core:lite
+        #but it isn't possible due to package visibility.
+        #Core package isn't publicly visible, hence,
+        #can't be used in external projects.
+        #Comment offers to use java/lite.
+        "@com_google_protobuf//java/lite",
         "@io_grpc_grpc_java//api",
         "@io_grpc_grpc_java//protobuf",
         "@io_grpc_grpc_java//stub",
