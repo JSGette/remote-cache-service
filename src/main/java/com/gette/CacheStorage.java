@@ -34,10 +34,9 @@ public final class CacheStorage {
     }
 
     public List<Digest> findDigests(List<Digest> digests) {
-        try (Stream<Digest> stream = digests.stream()) {
-            return stream.filter(digest -> hasDigest(digest))
-            .collect(Collectors.toList());
-        }
+        return digests.stream()
+                      .filter(digest -> hasDigest(digest))
+                      .collect(Collectors.toList());
     }
 
     public int getCachedDigestsCount() {
