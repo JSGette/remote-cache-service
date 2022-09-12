@@ -9,6 +9,7 @@ java_binary(
         "@io_grpc_grpc_java//netty",
     ],
     deps = [
+        ":google_rpc_status_java_proto",
         ":remote_execution_grpc_java",
         ":remote_execution_proto_java",
         ":remote_execution_semver_proto_java",
@@ -57,5 +58,14 @@ java_grpc_library(
 
 java_proto_library(
     name = "remote_execution_semver_proto_java",
-    deps = ["@google_remote_apis//build/bazel/semver:semver_proto"]
+    deps = ["@google_remote_apis//build/bazel/semver:semver_proto"],
+)
+
+#Although bazel offers to add
+#@googleapis//:google_rpc_status_proto to //:remote_cache_server_bin directly
+#This won't work. We need to compile java proto library first
+#and pass it as a dependency to java_binary
+java_proto_library(
+    name = "google_rpc_status_java_proto",
+    deps = ["@googleapis//:google_rpc_status_proto"],
 )

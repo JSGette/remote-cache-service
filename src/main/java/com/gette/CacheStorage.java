@@ -23,14 +23,32 @@ public final class CacheStorage {
     private static final Logger log = Logger.getLogger(CacheStorage.class.getName());
     private final Map<Digest, Path> cachedDigests;
     private Path cacheStoragePath;
+    private static final CacheStorage acStorage = new CacheStorage("/tmp/remote_cache/ac");
+    private static final CacheStorage casStorage = new CacheStorage("/tmp/remote_cache/cas");
 
-    public CacheStorage(String cacheStoragePath) throws IOException {
-        log.info("Initializing Cache Storage...");
-        this.cacheStoragePath = Paths.get(cacheStoragePath);
-        log.info("Storage Path: " + cacheStoragePath);
-        log.info("Looking for already exising blobs...");
-        cachedDigests = walkFileTree();
-        log.info("Found " + cachedDigests.size() + " blobs...");
+    public CacheStorage(String cacheStoragePath) {
+        try {
+            log.info("Initializing Cache Storage...");
+            this.cacheStoragePath = Paths.get(cacheStoragePath);
+            log.info("Storage Path: " + cacheStoragePath);
+            log.info("Looking for already exising blobs...");
+            cachedDigests = walkFileTree();
+            log.info("Found " + cachedDigests.size() + " blobs...");
+        } catch (IOException exception) {
+            throw new RuntimeException(exception);
+        }
+    }
+
+    public static CacheStorage acStorage() throws IOException {
+        return acStorage;
+    }
+
+    public static CacheStorage casStorage() {
+        return casStorage;
+    }
+
+    public Path getStoragePath() {
+        return cacheStoragePath;
     }
 
     public List<Digest> findDigests(List<Digest> digests) {
@@ -70,5 +88,14 @@ public final class CacheStorage {
                 (f1, f2) -> f2,
                 ConcurrentHashMap::new));
         }
+    }
+
+    public void putDigest(Digest digest, Path path) {
+        log.info("Adding HASH: " + digest.getHash() + " to PATH: " + path);
+        cachedDigests.putIfAbsent(digest, path);
+    }
+
+    public Path resolveDigestPath(Digest digest) {
+        return cacheStoragePath.resolve(digest.getHash());
     }
 }

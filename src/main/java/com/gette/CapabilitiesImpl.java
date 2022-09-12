@@ -24,7 +24,7 @@ public class CapabilitiesImpl extends CapabilitiesImplBase{
         log.info("GetCapabilities received...");
         ServerCapabilities serverCapabilities = ServerCapabilities.newBuilder()
         .setCacheCapabilities(getCacheCapabilities())
-        .setExecutionCapabilities(getExecutionCapabilities())
+        //.setExecutionCapabilities(getExecutionCapabilities())
         .setLowApiVersion(SemVer.newBuilder()
             .setMajor(0)
             .setMinor(0)
@@ -44,6 +44,8 @@ public class CapabilitiesImpl extends CapabilitiesImplBase{
         return CacheCapabilities.newBuilder()
         .addDigestFunctions(DigestFunction.Value.SHA256)
         .setActionCacheUpdateCapabilities(getActionCacheUpdateCapabilities())
+        //No limit for batch upload
+        .setMaxBatchTotalSizeBytes(0)
         //Disabling symlinks to simplify
         .setSymlinkAbsolutePathStrategy(SymlinkAbsolutePathStrategy.Value.DISALLOWED)
         .build();
