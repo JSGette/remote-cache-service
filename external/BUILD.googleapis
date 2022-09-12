@@ -14,27 +14,9 @@ proto_library(
     ],
 )
 
-cc_grpc_library(
-    name = "google_api_annotations_cc_proto",
-    srcs = ["google/api/annotations.proto"],
-    deps = [":google_api_http_cc_proto"],
-    proto_only = False,
-    well_known_protos = True,
-    use_external = False,
-)
-
 proto_library(
     name = "google_api_http_proto",
     srcs = ["google/api/http.proto"],
-)
-
-cc_grpc_library(
-    name = "google_api_http_cc_proto",
-    srcs = ["google/api/http.proto"],
-    deps = [],
-    proto_only = False,
-    well_known_protos = True,
-    use_external = False,
 )
 
 proto_library(
@@ -49,30 +31,17 @@ proto_library(
     ],
 )
 
-cc_grpc_library(
-    name = "google_longrunning_operations_cc_proto",
-    srcs = ["google/longrunning/operations.proto"],
-    deps = [
-        ":google_api_annotations_cc_proto",
-        ":google_api_http_cc_proto",
-        ":google_rpc_status_cc_proto",
-    ],
-    proto_only = False,
-    well_known_protos = True,
-    use_external = False,
-)
-
 proto_library(
     name = "google_rpc_status_proto",
     srcs = ["google/rpc/status.proto"],
     deps = ["@com_google_protobuf//:any_proto"],
 )
 
-cc_grpc_library(
-    name = "google_rpc_status_cc_proto",
-    srcs = ["google/rpc/status.proto"],
-    deps = [],
-    proto_only = False,
-    well_known_protos = True,
-    use_external = False,
+proto_library(
+    name = "google_bytestream_proto",
+    srcs = ["google/bytestream/bytestream.proto"],
+    deps = [
+        "google_api_annotations_proto",
+        "@com_google_protobuf//:wrappers_proto",
+    ],
 )

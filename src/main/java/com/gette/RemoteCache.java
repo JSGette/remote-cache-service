@@ -5,10 +5,11 @@ import io.grpc.ServerBuilder;
 import io.grpc.protobuf.services.ProtoReflectionService;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class RemoteCache {
-    private static final Logger logger = Logger.getLogger(RemoteCache.class.getName());
+  private static final Logger log = LoggerFactory.getLogger(RemoteCache.class);
     private Server server;
 
     private void start() throws IOException {
@@ -22,7 +23,7 @@ public class RemoteCache {
           .maxInboundMessageSize(52428800)
           .build()
           .start();
-      logger.info("Server started, listening on " + port);
+      log.info("Server started, listening on " + port);
       Runtime.getRuntime().addShutdownHook(new Thread() {
         @Override
         public void run() {
@@ -54,10 +55,10 @@ public class RemoteCache {
     }
 
     public static void main(String[] args) throws IOException, InterruptedException {
-        logger.info("Remote Cache Server is starting...");
+        log.info("Remote Cache Server is starting...");
         final RemoteCache server = new RemoteCache();
         server.start();
-        logger.info("RCS has successfully started...");
+        log.info("RCS has successfully started...");
         server.blockUntilShutdown();
     }
 }

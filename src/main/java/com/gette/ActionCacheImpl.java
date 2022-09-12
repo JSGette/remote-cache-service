@@ -7,7 +7,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import build.bazel.remote.execution.v2.ActionCacheGrpc.ActionCacheImplBase;
 import build.bazel.remote.execution.v2.GetActionResultRequest;
@@ -23,7 +24,7 @@ import com.google.protobuf.ByteString;
 import org.apache.commons.codec.digest.DigestUtils;
 
 public class ActionCacheImpl extends ActionCacheImplBase {
-    private static final Logger log = Logger.getLogger(ActionCacheImpl.class.getName());
+    private static final Logger log = LoggerFactory.getLogger(ActionCacheImpl.class);
     private final CacheStorage cache;
 
     public ActionCacheImpl() throws IOException {
@@ -68,7 +69,7 @@ public class ActionCacheImpl extends ActionCacheImplBase {
             Digest stdoutDigest = result.getStdoutDigest();
             if (!stdout.isEmpty() && !casStorage.hasDigest(stdoutDigest)) {
                 //TODO: Check if hash from Digest equals hash of the contents
-                log.config("Cache stdout...");
+                log.info("Cache stdout...");
                 Path stdoutCASPath = casStorage.getStoragePath().resolve(stdoutDigest.getHash());
                 try(OutputStream stdoutOut = Files.newOutputStream(stdoutCASPath)) {
                     stdout.writeTo(stdoutOut);

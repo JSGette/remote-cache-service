@@ -55,6 +55,7 @@ maven_install(
         "com.google.api.grpc:grpc-google-cloud-pubsub-v1:0.1.24",
         "com.google.api.grpc:proto-google-cloud-pubsub-v1:0.1.24",
         "commons-codec:commons-codec:1.15",
+        "org.slf4j:slf4j-api:jar:2.0.0"
     ] + IO_GRPC_GRPC_JAVA_ARTIFACTS + PROTOBUF_MAVEN_ARTIFACTS,
     generate_compat_repositories = True,
     override_targets = IO_GRPC_GRPC_JAVA_OVERRIDE_TARGETS,
