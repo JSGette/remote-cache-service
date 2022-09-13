@@ -27,7 +27,6 @@ public class ActionCacheImpl extends ActionCacheImplBase {
     private final CacheStorage cache;
 
     public ActionCacheImpl() throws IOException {
-        super();
         cache = CacheStorage.acStorage();
     }
 
