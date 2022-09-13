@@ -8,7 +8,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
 public class RemoteCache {
-    private static final Logger logger = Logger.getLogger(RemoteCache.class.getName());
+  private static final Logger log = Logger.getLogger(RemoteCache.class.getName());
     private Server server;
 
     private void start() throws IOException {
@@ -16,11 +16,14 @@ public class RemoteCache {
       int port = 50051;
       server = ServerBuilder.forPort(port)
           .addService(new CapabilitiesImpl())
-          .addService(new ContentAddressableStorageImpl("/tmp/remote_cache"))
+          //.addService(new ContentAddressableStorageImpl())
+          .addService(new ActionCacheImpl())
           .addService(ProtoReflectionService.newInstance())
+          .addService(new ByteStreamImpl())
+          .maxInboundMessageSize(52428800)
           .build()
           .start();
-      logger.info("Server started, listening on " + port);
+      log.info("Server started, listening on " + port);
       Runtime.getRuntime().addShutdownHook(new Thread() {
         @Override
         public void run() {
@@ -52,10 +55,10 @@ public class RemoteCache {
     }
 
     public static void main(String[] args) throws IOException, InterruptedException {
-        logger.info("Remote Cache Server is starting...");
+        log.info("Remote Cache Server is starting...");
         final RemoteCache server = new RemoteCache();
         server.start();
-        logger.info("RCS has successfully started...");
+        log.info("RCS has successfully started...");
         server.blockUntilShutdown();
     }
 }

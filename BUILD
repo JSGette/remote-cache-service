@@ -9,15 +9,26 @@ java_binary(
         "@io_grpc_grpc_java//netty",
     ],
     deps = [
+        ":google_bytestream_grpc_java",
+        ":google_bytestream_java_proto",
+        ":google_rpc_status_java_proto",
         ":remote_execution_grpc_java",
         ":remote_execution_proto_java",
         ":remote_execution_semver_proto_java",
+        #bazel offers to use @com_google_protobuf//java/core:lite
+        #but it isn't possible due to package visibility.
+        #Core package isn't publicly visible, hence,
+        #can't be used in external projects.
+        #Comment offers to use java/lite.
+        "@com_google_protobuf//java/lite",
         "@io_grpc_grpc_java//api",
         "@io_grpc_grpc_java//protobuf",
         "@io_grpc_grpc_java//stub",
         "@maven//:commons_codec_commons_codec",
         #This allows us to get list of implemented GRPC Services and Methods
         "@io_grpc_grpc_java//services:reflection",
+        "@maven//:com_google_api_grpc_proto_google_common_protos",
+        "@maven//:org_slf4j_slf4j_api",
     ],
 )
 
@@ -49,7 +60,27 @@ java_grpc_library(
     deps = [":remote_execution_proto_java"],
 )
 
+java_grpc_library(
+    name = "google_bytestream_grpc_java",
+    srcs = ["@googleapis//:google_bytestream_proto"],
+    deps = [":google_bytestream_java_proto"],
+)
+
 java_proto_library(
     name = "remote_execution_semver_proto_java",
-    deps = ["@google_remote_apis//build/bazel/semver:semver_proto"]
+    deps = ["@google_remote_apis//build/bazel/semver:semver_proto"],
+)
+
+#Although bazel offers to add
+#@googleapis//:google_rpc_status_proto to //:remote_cache_server_bin directly
+#This won't work. We need to compile java proto library first
+#and pass it as a dependency to java_binary
+java_proto_library(
+    name = "google_rpc_status_java_proto",
+    deps = ["@googleapis//:google_rpc_status_proto"],
+)
+
+java_proto_library(
+    name = "google_bytestream_java_proto",
+    deps = ["@googleapis//:google_bytestream_proto"],
 )
