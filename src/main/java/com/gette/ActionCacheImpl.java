@@ -136,12 +136,4 @@ public class ActionCacheImpl extends ActionCacheImplBase {
         }
         return true;
     }
-
-    public void writeContentToFile(ByteString data, Path path) {
-        try(OutputStream out = Files.newOutputStream(path)) {
-            data.writeTo(out);
-        } catch (IOException exception) {
-            throw new RuntimeException(exception);
-        }
-    }
 }
