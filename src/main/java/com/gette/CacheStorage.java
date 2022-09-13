@@ -32,7 +32,7 @@ public final class CacheStorage {
             this.cacheStoragePath = Paths.get(cacheStoragePath);
             log.info("Storage Path: " + cacheStoragePath);
             log.info("Looking for already exising blobs...");
-            cachedDigests = walkFileTree();
+            cachedDigests = walkFileTree(this.cacheStoragePath);
             log.info("Found " + cachedDigests.size() + " blobs...");
         } catch (IOException exception) {
             throw new RuntimeException(exception);
@@ -62,17 +62,17 @@ public final class CacheStorage {
     }
 
     public boolean hasDigest(Digest digest){
-        log.info("Looking for Digest with HASH: " + digest.getHash() + " and SIZE: " + digest.getSizeBytes());
+        log.fine("Looking for Digest with HASH: " + digest.getHash() + " and SIZE: " + digest.getSizeBytes());
         if (cachedDigests.keySet().contains(digest)) {
-            log.info("Found Digest...");
+            log.fine("Found Digest...");
             return true;
         }
-        log.info("Digest Not Found...");
+        log.fine("Digest Not Found...");
         return false;
     }
 
-    private Map<Digest, Path> walkFileTree() throws IOException {
-        try (Stream<Path> stream = Files.find(cacheStoragePath, Integer.MAX_VALUE, (filePath, fileAttr) -> fileAttr.isRegularFile())) {
+    public Map<Digest, Path> walkFileTree(Path rootPath) throws IOException {
+        try (Stream<Path> stream = Files.find(rootPath, Integer.MAX_VALUE, (filePath, fileAttr) -> fileAttr.isRegularFile())) {
             return stream.collect(Collectors.toMap(
                 file -> {
                     try (InputStream is = Files.newInputStream(file)) {
@@ -91,7 +91,7 @@ public final class CacheStorage {
     }
 
     public void putDigest(Digest digest, Path path) {
-        log.info("Adding HASH: " + digest.getHash() + " to PATH: " + path);
+        log.fine("Adding HASH: " + digest.getHash() + " to PATH: " + path);
         cachedDigests.putIfAbsent(digest, path);
     }
 

@@ -5,11 +5,10 @@ import io.grpc.ServerBuilder;
 import io.grpc.protobuf.services.ProtoReflectionService;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.logging.Logger;
 
 public class RemoteCache {
-  private static final Logger log = LoggerFactory.getLogger(RemoteCache.class);
+  private static final Logger log = Logger.getLogger(RemoteCache.class.getName());
     private Server server;
 
     private void start() throws IOException {
@@ -17,9 +16,10 @@ public class RemoteCache {
       int port = 50051;
       server = ServerBuilder.forPort(port)
           .addService(new CapabilitiesImpl())
-          .addService(new ContentAddressableStorageImpl())
+          //.addService(new ContentAddressableStorageImpl())
           .addService(new ActionCacheImpl())
           .addService(ProtoReflectionService.newInstance())
+          .addService(new ByteStreamImpl())
           .maxInboundMessageSize(52428800)
           .build()
           .start();
