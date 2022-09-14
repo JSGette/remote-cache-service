@@ -1,26 +1,18 @@
 package com.gette;
 
+import build.bazel.remote.execution.v2.*;
+import build.bazel.remote.execution.v2.ActionCacheGrpc.ActionCacheImplBase;
+import com.google.protobuf.ByteString;
+import io.grpc.Status;
+import io.grpc.stub.StreamObserver;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
-
-import build.bazel.remote.execution.v2.ActionCacheGrpc.ActionCacheImplBase;
-import build.bazel.remote.execution.v2.GetActionResultRequest;
-import build.bazel.remote.execution.v2.UpdateActionResultRequest;
-import build.bazel.remote.execution.v2.ActionResult;
-import build.bazel.remote.execution.v2.Digest;
-import build.bazel.remote.execution.v2.OutputFile;
-import io.grpc.Status;
-import io.grpc.stub.StreamObserver;
-
-import com.google.protobuf.ByteString;
-
-import org.apache.commons.codec.digest.DigestUtils;
 
 public class ActionCacheImpl extends ActionCacheImplBase {
     private static final Logger log = Logger.getLogger(ActionCacheImpl.class.getName());
@@ -37,7 +29,6 @@ public class ActionCacheImpl extends ActionCacheImplBase {
         Digest actionDigest = request.getActionDigest();
         Path actionResultPath = cache.resolveDigestPath(actionDigest);
         ActionResult result = request.getActionResult();
-        //if (validateActionResult(result)) {
 
         try (OutputStream out = Files.newOutputStream(actionResultPath)) {
             log.info("Updating ActionResult with HASH: " + actionDigest.getHash());
@@ -92,12 +83,6 @@ public class ActionCacheImpl extends ActionCacheImplBase {
         } catch (IOException exception) {
             throw new RuntimeException(exception);
         }
-        /*} else {
-            log.warning("Referred Blob does not exist in CAS");
-            //responseObserver.onError(Status.INVALID_ARGUMENT.withDescription("Referred Blob does not exist in CAS....").asRuntimeException());
-            responseObserver.onNext(ActionResult.newBuilder().build());
-            responseObserver.onCompleted();
-        } */
     }
 
     @Override
@@ -107,7 +92,7 @@ public class ActionCacheImpl extends ActionCacheImplBase {
         Digest actionDigest = request.getActionDigest();
         log.info("GetActionResult received...");
         log.info("ActionResult Hash: " + actionDigest.getHash());
-        if (cache.hasDigest(actionDigest)) {
+        if (cache.hasHash(actionDigest.getHash())) {
             log.info("ActionResult Found...");
             try (InputStream in = Files.newInputStream(cache.resolveDigestPath(request.getActionDigest()))) {
                 actionResult = ActionResult.parseFrom(ByteString.readFrom(in));
