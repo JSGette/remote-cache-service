@@ -15,54 +15,54 @@ import io.grpc.stub.StreamObserver;
 
 import build.bazel.semver.SemVer;
 
-public class CapabilitiesImpl extends CapabilitiesImplBase{
+public class CapabilitiesImpl extends CapabilitiesImplBase {
     private static final Logger log = Logger.getLogger(CapabilitiesImpl.class.getName());
 
     @Override
-    public void getCapabilities(GetCapabilitiesRequest request, 
-    StreamObserver<ServerCapabilities> responseObserver) {
+    public void getCapabilities(GetCapabilitiesRequest request,
+                                StreamObserver<ServerCapabilities> responseObserver) {
         log.info("GetCapabilities received...");
         ServerCapabilities serverCapabilities = ServerCapabilities.newBuilder()
-        .setCacheCapabilities(getCacheCapabilities())
-        //.setExecutionCapabilities(getExecutionCapabilities())
-        .setLowApiVersion(SemVer.newBuilder()
-            .setMajor(0)
-            .setMinor(0)
-            .setPatch(0)
-            .build())
-        .setHighApiVersion(SemVer.newBuilder()
-            .setMajor(2)
-            .setMinor(0)
-            .setPatch(0)
-            .build())
-        .build();
+                .setCacheCapabilities(getCacheCapabilities())
+                //.setExecutionCapabilities(getExecutionCapabilities())
+                .setLowApiVersion(SemVer.newBuilder()
+                        .setMajor(0)
+                        .setMinor(0)
+                        .setPatch(0)
+                        .build())
+                .setHighApiVersion(SemVer.newBuilder()
+                        .setMajor(2)
+                        .setMinor(0)
+                        .setPatch(0)
+                        .build())
+                .build();
         responseObserver.onNext(serverCapabilities);
         responseObserver.onCompleted();
     }
 
     protected CacheCapabilities getCacheCapabilities() {
         return CacheCapabilities.newBuilder()
-        .addDigestFunctions(DigestFunction.Value.SHA256)
-        .setActionCacheUpdateCapabilities(getActionCacheUpdateCapabilities())
-        //No limit for batch upload
-        .setMaxBatchTotalSizeBytes(0)
-        //Disabling symlinks to simplify
-        .setSymlinkAbsolutePathStrategy(SymlinkAbsolutePathStrategy.Value.DISALLOWED)
-        .build();
+                .addDigestFunctions(DigestFunction.Value.SHA256)
+                .setActionCacheUpdateCapabilities(getActionCacheUpdateCapabilities())
+                //No limit for batch upload
+                .setMaxBatchTotalSizeBytes(0)
+                //Disabling symlinks to simplify
+                .setSymlinkAbsolutePathStrategy(SymlinkAbsolutePathStrategy.Value.DISALLOWED)
+                .build();
     }
 
     //Explicitly disabling Remote Execution
     protected ExecutionCapabilities getExecutionCapabilities() {
         return ExecutionCapabilities.newBuilder()
-        .setExecEnabled(false)
-        .build();
+                .setExecEnabled(false)
+                .build();
     }
 
     //This parameter should be enabled otherwise
     //getting `the current account is not authorized to write local results to the remote cache.`
     protected ActionCacheUpdateCapabilities getActionCacheUpdateCapabilities() {
         return ActionCacheUpdateCapabilities.newBuilder()
-            .setUpdateEnabled(true)
-            .build();
+                .setUpdateEnabled(true)
+                .build();
     }
 }

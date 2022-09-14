@@ -27,7 +27,7 @@ public class ByteStreamImpl extends ByteStreamImplBase {
 
     @Override
     public void read(ReadRequest request,
-    StreamObserver<ReadResponse> responseObserver) {
+                     StreamObserver<ReadResponse> responseObserver) {
         log.info("BYTESTREAM Read Received...");
         String resourceName = request.getResourceName();
         try {
@@ -46,39 +46,39 @@ public class ByteStreamImpl extends ByteStreamImplBase {
 
     @Override
     public StreamObserver<WriteRequest> write(
-        StreamObserver<WriteResponse> responseObserver) {
+            StreamObserver<WriteResponse> responseObserver) {
         log.info("BYTESTREAM Write Received...");
-        return new StreamObserver<WriteRequest>(){
+        return new StreamObserver<WriteRequest>() {
             String resourceName;
             //Set buffer size to 16 mb
-            ByteArrayOutputStream writeBuffer = new ByteArrayOutputStream(16*1024*1024);
-        
+            ByteArrayOutputStream writeBuffer = new ByteArrayOutputStream(16 * 1024 * 1024);
+
             @Override
             public void onNext(WriteRequest request) {
-                    if (resourceName == null && !request.getResourceName().isEmpty()) {
-                        resourceName = request.getResourceName();
-                    }
-                    byte[] data = request.getData().toByteArray();
-                    int offset = (int) request.getWriteOffset();
-                    try {
-                        writeBuffer.write(data);
-                    } catch (IOException exception) {
-                        throw new RuntimeException(exception);
-                    }
-                    if (request.getFinishWrite()) {
-                        Digest digest = Digest.newBuilder()
-                                              .setHash(DigestUtils.sha256Hex(writeBuffer.toByteArray()))
-                                              .setSizeBytes(writeBuffer.size())
-                                              .build();
-                        if (!cas.hasDigest(digest)) {
-                            try (OutputStream out = Files.newOutputStream(cas.resolveDigestPath(digest))) {
-                                writeBuffer.writeTo(out);
-                            } catch (IOException exception) {
-                                throw new RuntimeException();
-                            }
+                if (resourceName == null && !request.getResourceName().isEmpty()) {
+                    resourceName = request.getResourceName();
+                }
+                byte[] data = request.getData().toByteArray();
+                int offset = (int) request.getWriteOffset();
+                try {
+                    writeBuffer.write(data);
+                } catch (IOException exception) {
+                    throw new RuntimeException(exception);
+                }
+                if (request.getFinishWrite()) {
+                    Digest digest = Digest.newBuilder()
+                            .setHash(DigestUtils.sha256Hex(writeBuffer.toByteArray()))
+                            .setSizeBytes(writeBuffer.size())
+                            .build();
+                    if (!cas.hasDigest(digest)) {
+                        try (OutputStream out = Files.newOutputStream(cas.resolveDigestPath(digest))) {
+                            writeBuffer.writeTo(out);
+                        } catch (IOException exception) {
+                            throw new RuntimeException();
                         }
-                        responseObserver.onNext(WriteResponse.newBuilder().setCommittedSize(writeBuffer.toByteArray().length).build());
                     }
+                    responseObserver.onNext(WriteResponse.newBuilder().setCommittedSize(writeBuffer.toByteArray().length).build());
+                }
             }
 
             @Override
