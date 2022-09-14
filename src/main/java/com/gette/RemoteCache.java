@@ -16,11 +16,11 @@ public class RemoteCache {
       int port = 50051;
       server = ServerBuilder.forPort(port)
           .addService(new CapabilitiesImpl())
-          //.addService(new ContentAddressableStorageImpl())
+          .addService(new ContentAddressableStorageImpl())
           .addService(new ActionCacheImpl())
-          .addService(ProtoReflectionService.newInstance())
           .addService(new ByteStreamImpl())
-          .maxInboundMessageSize(52428800)
+          .addService(ProtoReflectionService.newInstance())
+          .maxInboundMessageSize(1024 * 1024 * 1024)
           .build()
           .start();
       log.info("Server started, listening on " + port);

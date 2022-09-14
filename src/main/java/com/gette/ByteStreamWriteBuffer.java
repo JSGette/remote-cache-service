@@ -1,15 +1,21 @@
 package com.gette;
 
-import java.io.ByteArrayOutputStream;
+import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ByteStreamWriteBuffer {
-    private static final ConcurrentHashMap<String, ByteArrayOutputStream> writeBlobs = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<String, Write> writeStatus = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<String, TreeMap<Integer, byte[]>> writeBlobs = new ConcurrentHashMap<>();
 
-    public static ByteArrayOutputStream getWriteBuffer(String blob) {
-        if (!writeBlobs.containsKey(blob)) {
-            writeBlobs.putIfAbsent(blob, new ByteArrayOutputStream());
-        }
-        return writeBlobs.get(blob);
+    public static TreeMap<Integer, byte[]> getWriteBuffer(String resource) {
+        return writeBlobs.computeIfAbsent(resource, b -> new TreeMap<>());
+    }
+
+    public static Write getWriteStatus(String resource) {
+        return writeStatus.computeIfAbsent(resource, b -> new Write(resource));
+    }
+
+    public static void removeWriteBuffer(String resource) {
+        writeBlobs.remove(resource);
     }
 }
