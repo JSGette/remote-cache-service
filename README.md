@@ -48,6 +48,23 @@ mkdir -p /tmp/remote_cache/ac
 bazel-bin/remote_cache_server_bin
 ```
 
+### How to use
+After you started a server using either `bazel run` or a wrapper script from `bazel-bin/remote_cache_server_bin`
+you can use it with any bazel project. All you have to do is just add a flag to your build command:
+```
+#If you want to run it locally just replace url with localhost
+bazel build //... --remote_cache=grpc://url:50051
+```
+If RC has been used you'll see such lines at the end of your build log:
+```
+INFO: Elapsed time: 6.584s, Critical Path: 5.22s
+INFO: 536 processes: 505 remote cache hit, 27 internal, 4 linux-sandbox.
+INFO: Build completed successfully, 536 total actions
+```
+**remote cache hit** means that we've taken something from cache instead of building. 
+Also small amount of **linux-sandbox** is a hint that cache has been used.
+
+
 ## Remote Cache Workflow
 This is a very basic workflow that doesn't cover up all API calls that are available but it's
 quite enough to get a common understanding. Moreover, except point 1 order of below mentioned requests
@@ -79,7 +96,8 @@ he will get "Invalid action cache entry" error.
 and outcoming blobs. Meaning that if the size of an output placed in `CAS`
 differs from the real one Server won't check it and pass existing file as is.
 
-- **Paths** to `AC` and `CAS` are hardcoded along with the **port** that is used by server (50051).
+- **Paths** to `AC` and `CAS` are hardcoded along with the **port** that is used by server (50051)
+so directories `/tmp/remote_cache/ac` and `/tmp/remote_cache/cas` should be created beforehand.
 
 - `ByteStream.Read` isn't fully functional. It can only pass blobs that aren't bigger than
 a maximal size of GRPC message. You will see `RESOURCE_EXHAUSTED` error on the client side
