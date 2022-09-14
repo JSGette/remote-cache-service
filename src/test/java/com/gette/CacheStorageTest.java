@@ -34,7 +34,7 @@ public class CacheStorageTest {
         tmpFiles.put("4f9c3633e8859bbe74114c4f82aa23ada90dc9a7b59643fd36451239ee1163ea", "this is test");
         tmpFiles.put("9e9bf89c0b50c80417b6720e2525f70492ff442ea19d2cc5858fd8b575725829", "this is also test");
         tmpFiles.put("e687c197cf99724bcbcc6f25d57f6165193bf8a34d1d922a33bc5b882734a388", "and this is also test");
-        
+
         /*
          * Creating set of test files with random content
          * and calculate their SHA-256
@@ -48,9 +48,9 @@ public class CacheStorageTest {
             log.info("FILE: " + path);
             log.info("HASH: " + DigestUtils.sha256Hex(new FileInputStream(path)));
             testDigests.add(Digest.newBuilder()
-            .setHash(DigestUtils.sha256Hex(new FileInputStream(path)))
-            .setSizeBytes(Paths.get(path).toFile().length())
-            .build());
+                    .setHash(DigestUtils.sha256Hex(new FileInputStream(path)))
+                    .setSizeBytes(Paths.get(path).toFile().length())
+                    .build());
         }
 
         cacheStorage = new CacheStorage(tempDir.toString());
@@ -59,15 +59,15 @@ public class CacheStorageTest {
     @Test
     public void findDigests_test() {
         List<Digest> findDigests = testDigests;
-        findDigests.add( Digest.newBuilder()
-        .setHash("231213947120937180292312")
-        .setSizeBytes(1)
-        .build());
+        findDigests.add(Digest.newBuilder()
+                .setHash("231213947120937180292312")
+                .setSizeBytes(1)
+                .build());
 
-        findDigests.add( Digest.newBuilder()
-        .setHash("223140821094812032837231231")
-        .setSizeBytes(2)
-        .build());
+        findDigests.add(Digest.newBuilder()
+                .setHash("223140821094812032837231231")
+                .setSizeBytes(2)
+                .build());
 
         Assertions.assertEquals(testDigests.size(), cacheStorage.findDigests(findDigests));
     }
@@ -78,14 +78,14 @@ public class CacheStorageTest {
     }
 
     @Test
-    public void hasDigest_test() throws IOException{
+    public void hasDigest_test() throws IOException {
         Assertions.assertTrue(cacheStorage.hasDigest(testDigests.get(0)));
 
         Digest nonExistingDigest = Digest.newBuilder()
-        .setHash("2589f1fa898bfaf10b8b631ad3bf29d8d9c7ef113237718f72e88fad4a5bc2d8")
-        .setSizeBytes(23)
-        .build();
-        
-       Assertions.assertFalse(cacheStorage.hasDigest(nonExistingDigest));
+                .setHash("2589f1fa898bfaf10b8b631ad3bf29d8d9c7ef113237718f72e88fad4a5bc2d8")
+                .setSizeBytes(23)
+                .build();
+
+        Assertions.assertFalse(cacheStorage.hasDigest(nonExistingDigest));
     }
 }
