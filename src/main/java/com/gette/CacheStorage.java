@@ -1,13 +1,12 @@
 package com.gette;
 
-import java.io.FileInputStream;
+import build.bazel.remote.execution.v2.Digest;
+
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -15,16 +14,12 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.apache.commons.codec.digest.DigestUtils;
-
-import build.bazel.remote.execution.v2.Digest;
-
 public final class CacheStorage {
     private static final Logger log = Logger.getLogger(CacheStorage.class.getName());
-    private final Map<Digest, Path> cachedDigests;
-    private Path cacheStoragePath;
     private static final CacheStorage acStorage = new CacheStorage("/tmp/remote_cache/ac");
     private static final CacheStorage casStorage = new CacheStorage("/tmp/remote_cache/cas");
+    private final Map<Digest, Path> cachedDigests;
+    private Path cacheStoragePath;
 
     public CacheStorage(String cacheStoragePath) {
         try {
@@ -53,16 +48,16 @@ public final class CacheStorage {
 
     public List<Digest> findDigests(List<Digest> digests) {
         return digests.stream()
-                      .filter(digest -> hasDigest(digest))
-                      .collect(Collectors.toList());
+                .filter(digest -> hasDigest(digest))
+                .collect(Collectors.toList());
     }
 
     public int getCachedDigestsCount() {
         return cachedDigests.size();
     }
 
-    public boolean hasDigest(Digest digest){
-        log.fine("Looking for Digest with HASH: " + digest.getHash() + " and SIZE: " + digest.getSizeBytes());
+    public boolean hasDigest(Digest digest) {
+        log.fine("Looking for Digest with HASH: " + digest.getHash());
         if (cachedDigests.keySet().contains(digest)) {
             log.fine("Found Digest...");
             return true;
@@ -71,22 +66,38 @@ public final class CacheStorage {
         return false;
     }
 
+    /*
+     * GetActionResult sends size and hash of Action
+     * but not the size of ActionResult leading
+     * to NOT_FOUND every time.
+     */
+    public boolean hasHash(String hash) {
+        if (cachedDigests.keySet().stream()
+                .map(digest -> digest.getHash())
+                .collect(Collectors.toList())
+                .contains(hash)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     public Map<Digest, Path> walkFileTree(Path rootPath) throws IOException {
         try (Stream<Path> stream = Files.find(rootPath, Integer.MAX_VALUE, (filePath, fileAttr) -> fileAttr.isRegularFile())) {
             return stream.collect(Collectors.toMap(
-                file -> {
-                    try (InputStream is = Files.newInputStream(file)) {
-                        return Digest.newBuilder()
-                        .setHash(DigestUtils.sha256Hex(is))
-                        .setSizeBytes(Files.size(file))
-                        .build();
-                    } catch (IOException exception) {
-                        throw new UncheckedIOException(exception);
-                    }
-                },
-                file -> file,
-                (f1, f2) -> f2,
-                ConcurrentHashMap::new));
+                    file -> {
+                        try {
+                            return Digest.newBuilder()
+                                    .setHash(file.getFileName().toString())
+                                    .setSizeBytes(Files.size(file))
+                                    .build();
+                        } catch (IOException exception) {
+                            throw new UncheckedIOException(exception);
+                        }
+                    },
+                    file -> file,
+                    (f1, f2) -> f2,
+                    ConcurrentHashMap::new));
         }
     }
 

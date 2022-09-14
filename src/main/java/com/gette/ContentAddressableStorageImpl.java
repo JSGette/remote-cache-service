@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
+import javax.swing.text.AbstractDocument.Content;
+
 import com.google.protobuf.ByteString;
 
 import com.google.rpc.Status;
@@ -27,26 +29,33 @@ import build.bazel.remote.execution.v2.ContentAddressableStorageGrpc.ContentAddr
 
 import io.grpc.stub.StreamObserver;
 
-public class ContentAddressableStorageImpl extends ContentAddressableStorageImplBase{
+public class ContentAddressableStorageImpl extends ContentAddressableStorageImplBase {
     private static final Logger log = Logger.getLogger(ContentAddressableStorageImpl.class.getName());
-    private final CacheStorage cache = CacheStorage.casStorage();
+    private final CacheStorage cache;
+
+    public ContentAddressableStorageImpl(CacheStorage cache) {
+        this.cache = cache;
+    }
 
     @Override
     public void findMissingBlobs(FindMissingBlobsRequest request,
-    StreamObserver<FindMissingBlobsResponse> responseObserver) {
-       List<Digest> digests = request.getBlobDigestsList();
-       log.info("FindMissingBlobs received...");
-       List<Digest> foundDigests = cache.findDigests(digests);
-       log.info("Found " + foundDigests.size() + " blobs");
-       responseObserver.onNext(FindMissingBlobsResponse.newBuilder()
-       .addAllMissingBlobDigests(foundDigests)
-       .build());
-       responseObserver.onCompleted();
+                                 StreamObserver<FindMissingBlobsResponse> responseObserver) {
+        List<Digest> digests = request.getBlobDigestsList();
+        log.info("FindMissingBlobs received...");
+        List<Digest> foundDigests = cache.findDigests(digests);
+        log.info("Found " + foundDigests.size() + " blobs");
+        List<Digest> missingDigests = new ArrayList<>();
+        missingDigests.addAll(digests);
+        missingDigests.removeAll(foundDigests);
+        responseObserver.onNext(FindMissingBlobsResponse.newBuilder()
+                .addAllMissingBlobDigests(missingDigests)
+                .build());
+        responseObserver.onCompleted();
     }
 
     @Override
     public void batchUpdateBlobs(BatchUpdateBlobsRequest request,
-    StreamObserver<BatchUpdateBlobsResponse> responseObserver) {
+                                 StreamObserver<BatchUpdateBlobsResponse> responseObserver) {
         log.info("BatchUpdateBlobs received...");
         List<BatchUpdateBlobsRequest.Request> uploadRequests = request.getRequestsList();
         List<BatchUpdateBlobsResponse.Response> responses = new ArrayList<>();
@@ -58,11 +67,11 @@ public class ContentAddressableStorageImpl extends ContentAddressableStorageImpl
                 log.info("Received blob " + digest.getHash());
                 data.writeTo(out);
                 BatchUpdateBlobsResponse.Response response = BatchUpdateBlobsResponse.Response.newBuilder()
-                .setDigest(digest)
-                .setStatus(Status.newBuilder()
-                                 .setCode(0)
-                                 .build())
-                .build();
+                        .setDigest(digest)
+                        .setStatus(Status.newBuilder()
+                                .setCode(0)
+                                .build())
+                        .build();
                 responses.add(response);
             } catch (IOException exception) {
                 throw new RuntimeException(exception);
@@ -73,19 +82,19 @@ public class ContentAddressableStorageImpl extends ContentAddressableStorageImpl
     }
 
     @Override
-    public void getTree(GetTreeRequest request, 
-    StreamObserver<GetTreeResponse> responseObserver) {
+    public void getTree(GetTreeRequest request,
+                        StreamObserver<GetTreeResponse> responseObserver) {
         log.info("GetTree received...");
         List<FileNode> files;
         Digest root = request.getRootDigest();
         Path rootInCas = cache.getStoragePath().resolve(root.getHash());
         if (Files.exists(rootInCas)) {
             GetTreeResponse response = GetTreeResponse.newBuilder()
-            .addAllDirectories(Arrays.asList())
-            .build();
+                    .addAllDirectories(Arrays.asList())
+                    .build();
             responseObserver.onNext(response);
             responseObserver.onCompleted();
-        }  else {
+        } else {
             responseObserver.onError(io.grpc.Status.NOT_FOUND.withDescription("Referred Blob does not exist in CAS....").asRuntimeException());
         }
     }

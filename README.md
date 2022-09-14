@@ -5,11 +5,11 @@ mainly related to Remote Cache.
 
 ## Requirements
 
-* Linux Distribution
 * OpenJDK 11
 * [bazel 5.2.0](https://docs.bazel.build/versions/main/install.html)
 
 **It isn't guaranteed that project is buildable/executable in Windows Environment**
+**It has been only tested on WSL2 using `Linux DESKTOP-AITN7NO 5.10.16.3-microsoft-standard-WSL2` and Ubuntu 20.04"**
 
 ## How to build/execute
 Bazel provides us with 2 very useful commands: build and run. The first builds arbitrary target
@@ -34,7 +34,19 @@ bazel test //...
 ```
 
 ### Standalone
-TBD
+`java_binary` target produces a shell script along with all necessary jar files to make it possible
+to run the project directly without `bazel run` command.
+```
+bazel build :remote_cache_server_bin
+#Right now paths to CAS and AC are hardcoded and not configurable
+#so they should be created beforehand
+mkdir -p /tmp/remote_cache/cas
+mkdir -p /tmp/remote_cache/ac
+# To run GRPC Server without bazel.
+# Make sure port 50051 is available and not used by any other service
+# because port is hardcoded at this moment
+bazel-bin/remote_cache_server_bin
+```
 
 ## Remote Cache Workflow
 This is a very basic workflow that doesn't cover up all API calls that are available but it's
@@ -49,8 +61,9 @@ the full list of implemented calls but checks some general information:
  - lowest supported version (LowApiVersion)
  - highest supported version (HighApiVersion)
  - and some other parameters
-2. If server responds with `GetCapabilities.CacheCapabilities` bazel client checks whether ActionResult  of currently executed target
- has already been cached or not using `ActionCache.GetActionResult`.
+2. If server responds with `GetCapabilities.CacheCapabilities` bazel client checks whether `ActionResult` of currently executed target
+ has already been cached using `ActionCache.GetActionResult`. If `ActionResult` is found client sends 
+ either `ContentAddressableStorage.BatchReadBlobs` or `ByteStream.Read` depending on the size of blobs.
 3. After that bazel client defines the outputs of currently executed target and sends `FindMissingBlobs` request to clarify 
 whether they're already present in remote cache (Content Addressable Storage) or not. Server responds with the list
 of blobs that aren't present.
@@ -60,6 +73,46 @@ or `ContentAddressableStorage.BatchUpdateBlobs` to upload produced outputs.
 a metadata about executed target with a list of dependent blobs from `CAS`. So server has to ensure
 that dependent blobs are already present in `CAS` otherwise when client will try to reuse entries from `AC`
 he will get "Invalid action cache entry" error.
+
+## Known Issues and Limitations
+- This remote cache implementation doesn't provide any validation of incoming
+and outcoming blobs. Meaning that if the size of an output placed in `CAS`
+differs from the real one Server won't check it and pass existing file as is.
+
+- **Paths** to `AC` and `CAS` are hardcoded along with the **port** that is used by server (50051).
+
+- `ByteStream.Read` isn't fully functional. It can only pass blobs that aren't bigger than
+a maximal size of GRPC message. You will see `RESOURCE_EXHAUSTED` error on the client side
+if client will try to download such blob from the cache. It's enough, though,
+to reuse most of cache to build this project, for instance.
+
+- `GetCapabilities` returns `ExecutionCapabilities` disabled, also some of `CacheCapabilities` are disabled,
+such as: compression, symlinks support etc.
+
+- Unit-test coverage is very limited. It basically contains example of how GRPC calls
+can be tested and also some rudimentary tests of `CacheStorage` class.
+
+- A lot of duplicated code.
+
+- Some implementations aren't optimal/efficient. Main goal was to get it functional.
+
+- It's not thread safe and also may cause issues like race condition.
+
+## Implemented API Calls
+| API                   | Status    |
+| --------------------- |:---------:|
+| GetCapabilities       | PARTIAL   |
+| CAS.FindMissingBlobs  | FULL      |
+| CAS.BatchUpdateBlobs  | UNCHECKED |
+| CAS.GetTree           | UNCHECKED |
+| AC.GetActionResult    | FULL      |
+| AC.UpdateActionResult | FULL      |
+| ByteStream.Write      | FULL      |
+| ByteStream.Read       | PARTIAL   |
+
+**FULL** - API Call fully functional and serves its purpose
+**UNCHECKED** - logic has been implemented but has never been used, no guarantee it works
+**PARTIAL** - there might be limitations or errors during usage but it works mostly
 
 ## Hints
 - If you're consuming any bazel project as external dependency (placed in WORKSPACE file)

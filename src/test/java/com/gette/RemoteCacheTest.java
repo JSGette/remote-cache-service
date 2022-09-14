@@ -35,11 +35,11 @@ public class RemoteCacheTest {
     void getCapabilitiesImpl_test() throws IOException {
         String serverName = InProcessServerBuilder.generateName();
         grpcCleanup.register(InProcessServerBuilder
-        .forName(serverName).directExecutor().addService(new CapabilitiesImpl()).build().start());
+                .forName(serverName).directExecutor().addService(new CapabilitiesImpl()).build().start());
 
         CapabilitiesGrpc.CapabilitiesBlockingStub blockingStub = CapabilitiesGrpc.newBlockingStub(
-            // Create a client channel and register for automatic graceful shutdown.
-            grpcCleanup.register(InProcessChannelBuilder.forName(serverName).directExecutor().build()));
+                // Create a client channel and register for automatic graceful shutdown.
+                grpcCleanup.register(InProcessChannelBuilder.forName(serverName).directExecutor().build()));
 
         ServerCapabilities reply = blockingStub.getCapabilities(GetCapabilitiesRequest.newBuilder().build());
 
