@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
+import javax.swing.text.AbstractDocument.Content;
+
 import com.google.protobuf.ByteString;
 
 import com.google.rpc.Status;
@@ -29,7 +31,11 @@ import io.grpc.stub.StreamObserver;
 
 public class ContentAddressableStorageImpl extends ContentAddressableStorageImplBase {
     private static final Logger log = Logger.getLogger(ContentAddressableStorageImpl.class.getName());
-    private final CacheStorage cache = CacheStorage.casStorage();
+    private final CacheStorage cache;
+
+    public ContentAddressableStorageImpl(CacheStorage cache) {
+        this.cache = cache;
+    }
 
     @Override
     public void findMissingBlobs(FindMissingBlobsRequest request,

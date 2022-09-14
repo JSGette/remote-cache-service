@@ -26,8 +26,8 @@ public class ActionCacheImpl extends ActionCacheImplBase {
     private static final Logger log = Logger.getLogger(ActionCacheImpl.class.getName());
     private final CacheStorage cache;
 
-    public ActionCacheImpl() throws IOException {
-        cache = CacheStorage.acStorage();
+    public ActionCacheImpl(CacheStorage cache) {
+        this.cache = cache;
     }
 
     @Override

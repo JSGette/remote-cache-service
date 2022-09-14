@@ -17,8 +17,8 @@ public class RemoteCache {
         int port = 50051;
         server = ServerBuilder.forPort(port)
                 .addService(new CapabilitiesImpl())
-                .addService(new ContentAddressableStorageImpl())
-                .addService(new ActionCacheImpl())
+                .addService(new ContentAddressableStorageImpl(CacheStorage.casStorage()))
+                .addService(new ActionCacheImpl(CacheStorage.acStorage()))
                 .addService(ProtoReflectionService.newInstance())
                 .addService(new ByteStreamImpl())
                 .maxInboundMessageSize(52428800)
