@@ -80,12 +80,12 @@ public class ByteStreamImpl extends ByteStreamImplBase {
                         responseObserver.onNext(WriteResponse.newBuilder().setCommittedSize(writeBuffer.toByteArray().length).build());
                     }
             }
-        
+
             @Override
             public void onCompleted() {
                 responseObserver.onCompleted();
             }
-        
+
             @Override
             public void onError(Throwable t) {
             }
