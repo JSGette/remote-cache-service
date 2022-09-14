@@ -16,7 +16,7 @@ public class RemoteCache {
       int port = 50051;
       server = ServerBuilder.forPort(port)
           .addService(new CapabilitiesImpl())
-          //.addService(new ContentAddressableStorageImpl())
+          .addService(new ContentAddressableStorageImpl())
           .addService(new ActionCacheImpl())
           .addService(ProtoReflectionService.newInstance())
           .addService(new ByteStreamImpl())

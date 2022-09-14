@@ -38,8 +38,11 @@ public class ContentAddressableStorageImpl extends ContentAddressableStorageImpl
        log.info("FindMissingBlobs received...");
        List<Digest> foundDigests = cache.findDigests(digests);
        log.info("Found " + foundDigests.size() + " blobs");
+       List<Digest> missingDigests = new ArrayList<>();
+       missingDigests.addAll(digests);
+       missingDigests.removeAll(foundDigests);
        responseObserver.onNext(FindMissingBlobsResponse.newBuilder()
-       .addAllMissingBlobDigests(foundDigests)
+       .addAllMissingBlobDigests(missingDigests)
        .build());
        responseObserver.onCompleted();
     }
